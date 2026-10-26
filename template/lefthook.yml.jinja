@@ -1,0 +1,49 @@
+# Pre-commit hook, installed by scripts/setup.
+# Formats the staged files and adds the fixes to the commit, then checks the
+# layer that changed and scans the staged changes for secrets, in parallel.
+glob_matcher: doublestar
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: secrets
+      run: gitleaks git --pre-commit --staged --redact --no-banner --verbose
+{%- if include_python %}
+
+    - name: python
+      group:
+        piped: true
+        jobs:
+          - name: format python
+            glob: "**/*.py"
+            run: uv run ruff format {staged_files}
+            stage_fixed: true
+          - name: check python
+            glob:
+              - "**/*.py"
+              - pyproject.toml
+              - uv.lock
+              - ruff.toml
+              - pyrightconfig.json
+            run: scripts/check python
+{%- endif %}
+{%- if include_typescript %}
+
+    - name: typescript
+      group:
+        piped: true
+        jobs:
+          - name: format typescript
+            glob: "**/*.{ts,tsx,js,mjs,cjs,json,css,html}"
+            run: npx --no-install prettier --write --ignore-unknown --log-level warn {staged_files}
+            stage_fixed: true
+          - name: check typescript
+            glob:
+              - "**/*.{ts,tsx,js,mjs,cjs}"
+              - package.json
+              - package-lock.json
+              - tsconfig.json
+              - .prettierrc.json
+              - .prettierignore
+            run: scripts/check typescript
+{%- endif %}

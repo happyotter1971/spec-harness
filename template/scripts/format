@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Formats everything for the layers present.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+if [[ -f pyproject.toml ]]; then
+  uv run ruff format
+fi
+if [[ -f package.json ]]; then
+  npx --no-install prettier --write --log-level warn .
+fi

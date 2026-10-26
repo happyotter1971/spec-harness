@@ -1,0 +1,88 @@
+# Copier settings for the app template. See README.md for how to use it.
+
+_min_copier_version: "9.19.1"
+_subdirectory: template
+_templates_suffix: .jinja
+_answers_file: .copier-answers.yml
+
+# Layer files are left out when their layer is not chosen.
+_exclude:
+  - "{% if not include_python %}pyproject.toml{% endif %}"
+  - "{% if not include_python %}.python-version{% endif %}"
+  - "{% if not include_python %}ruff.toml{% endif %}"
+  - "{% if not include_python %}pyrightconfig.json{% endif %}"
+  - "{% if not include_python %}src/{{ package_name }}{% endif %}"
+  - "{% if not include_python %}tests/test_*.py{% endif %}"
+  - "{% if not include_typescript %}package.json{% endif %}"
+  - "{% if not include_typescript %}.nvmrc{% endif %}"
+  - "{% if not include_typescript %}.npmrc{% endif %}"
+  - "{% if not include_typescript %}.prettierignore{% endif %}"
+  - "{% if not include_typescript %}.prettierrc.json{% endif %}"
+  - "{% if not include_typescript %}tsconfig.json{% endif %}"
+  - "{% if not include_typescript %}eslint.config.js{% endif %}"
+  - "{% if not include_typescript %}vitest.config.ts{% endif %}"
+  - "{% if not include_typescript %}src/*.ts{% endif %}"
+  - "{% if not include_typescript %}tests/*.test.ts{% endif %}"
+  - "{% if not include_typescript %}docs/BRAND.md{% endif %}"
+  - "{% if not include_ci %}.github{% endif %}"
+  - "{% if not include_python and not include_typescript %}src{% endif %}"
+  - "{% if not include_python and not include_typescript %}tests{% endif %}"
+
+# App-owned files: created once, never touched by `copier update`.
+_skip_if_exists:
+  - README.md
+  - docs/SPEC.md
+  - docs/ARCHITECTURE.md
+  - docs/STATUS.md
+  - docs/BRAND.md
+  - docs/AGENT_NOTES.md
+  - scripts/dev
+  - docs/features/*
+  - "!docs/features/README.md"
+  - docs/plans/*
+  - "!docs/plans/README.md"
+  - docs/decisions/*
+  - "!docs/decisions/0000-template.md"
+  - .env.example
+  - src/**
+  - tests/**
+
+project_name:
+  type: str
+  help: App name, in plain words (for example "Card Value")
+  validator: "{% if not project_name.strip() %}Please enter a name.{% endif %}"
+
+project_slug:
+  type: str
+  help: Folder and package name
+  default: "{{ project_name.strip().lower() | regex_replace('[^a-z0-9]+', '-') | trim('-') }}"
+  validator: >-
+    {% if not (project_slug | regex_search('^[a-z][a-z0-9-]*$')) %}
+    Use lowercase letters, digits and hyphens, starting with a letter.
+    {% endif %}
+
+description:
+  type: str
+  help: One line on what the app does
+  validator: "{% if not description.strip() %}Please enter a description.{% endif %}"
+
+include_python:
+  type: bool
+  help: Include the Python layer?
+  default: true
+
+include_typescript:
+  type: bool
+  help: Include the TypeScript layer?
+  default: true
+
+include_ci:
+  type: bool
+  help: Include GitHub Actions (CI) and Dependabot?
+  default: true
+
+# Derived, not asked.
+package_name:
+  type: str
+  default: "{{ project_slug | replace('-', '_') }}"
+  when: false

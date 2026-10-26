@@ -1,0 +1,37 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Run it
+
+```bash
+scripts/setup    # once: git repository, dependencies, pre-commit hook
+scripts/dev      # start the app locally
+scripts/check    # every check
+scripts/format   # format everything
+```
+
+## How this app is built
+
+The app is built spec-first with a coding agent: the requirements live in `docs/`, starting with `docs/SPEC.md`, and the agent follows `AGENTS.md` and `docs/PROCESS.md`. How to work this way, from idea to published app, is in the template's guide: [GUIDE.md](https://github.com/happyotter1971/spec-harness/blob/main/GUIDE.md).
+
+Template updates: run `copier update` from this folder with a clean working tree.
+
+## Publish to GitHub (optional)
+
+```bash
+scripts/publish-github --dry-run   # show what would happen
+scripts/publish-github             # create a private repository and push, after you type yes
+```
+
+It needs the GitHub CLI signed in (`gh auth login`), a clean working tree and a passing `scripts/check`. It never overwrites an existing remote or repository, and only creates private repositories. Coding agents never run it unless the owner asks in that session.
+
+## Secrets
+
+Secrets go in `.env`, which git ignores; `.env.example` lists the variable names only. To keep credentials out of the project folder entirely, keep the real file in an owner-only folder elsewhere and link to it:
+
+```bash
+mkdir -p ~/.private/{{ project_slug }} && chmod 700 ~/.private/{{ project_slug }}
+touch ~/.private/{{ project_slug }}/.env && chmod 600 ~/.private/{{ project_slug }}/.env
+ln -s ~/.private/{{ project_slug }}/.env .env
+```

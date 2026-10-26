@@ -1,0 +1,42 @@
+# {{ project_name }}
+
+{{ description }}
+
+**Stack:** {% if include_python and include_typescript %}Python (uv) and TypeScript (Node and npm){% elif include_python %}Python (uv){% elif include_typescript %}TypeScript (Node and npm){% else %}documents only, until the first build chooses a stack{% endif %}. Exact versions are in `docs/ARCHITECTURE.md`.
+
+**Commands:**
+
+- `scripts/check`: every check (format, lint, types, tests with coverage). It must pass before you hand over work.
+- `scripts/format`: format everything.
+- `scripts/dev`: start the app locally.
+
+## Start here
+
+Before you plan, build or change anything, or answer questions about the app, read all of the following, start to finish:
+
+1. `docs/SPEC.md`
+2. `docs/ARCHITECTURE.md`
+3. `docs/CODE_STANDARDS.md`
+4. `docs/PROCESS.md`
+5. `docs/BRAND.md` (if present)
+6. `docs/AGENT_NOTES.md`
+7. `docs/STATUS.md`
+8. The current plan in `docs/plans/`, if there is one
+
+## Roles
+
+The docs are the owner's requirements. The owner directs the work and reviews plans and builds. You turn the requirements into plans and working, checked code by following `docs/PROCESS.md`, and explain your choices so the owner can review them.
+
+## Scope
+
+Build only what the docs ask for; don't build ahead. Where the docs and the code disagree, follow the docs' intent and say what differed.
+
+## Rules
+
+- Never weaken a check: no lowered thresholds, disabled rules or excluded files to get a pass. If a rule looks wrong, stop and ask.
+- Never use `--no-verify` or skip the pre-commit hook.
+- Never commit secrets. Never read or edit `.env`.
+- Never push, publish or deploy, and never run `scripts/publish-github`, unless the owner asks for it in this session.
+- Never read the paths listed under "Off limits" in `docs/AGENT_NOTES.md`.
+
+This file is shared by every app made from the template and is updated by `copier update`. Put anything specific to this app in `docs/AGENT_NOTES.md`.

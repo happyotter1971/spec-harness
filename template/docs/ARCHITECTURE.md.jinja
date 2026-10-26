@@ -1,0 +1,61 @@
+# Architecture: {{ project_name }}
+
+<!--
+One page. It describes the app as it is now, not as it was planned; the agent updates it after every build.
+Big choices (a framework, a database, an outside service) get an ADR in docs/decisions/ first; this page records the result.
+Replace every prompt below, then delete these comments.
+-->
+
+## Components
+
+<!-- The parts of the app and how they connect, in one Mermaid diagram plus a line on each part. -->
+
+```mermaid
+flowchart LR
+  user[User] --> app[App]
+```
+
+## Stack
+
+<!-- Languages, frameworks and tools with exact versions. The template's starting versions are listed; update them when they change. -->
+
+| Part | Version |
+|---|---|
+{%- if include_python %}
+| Python | 3.15.1 (`.python-version`) |
+| uv | 0.13.5 or later |
+{%- endif %}
+{%- if include_typescript %}
+| Node | 24.22.1 (`.nvmrc`) |
+| TypeScript | 6.0.3 |
+{%- endif %}
+{%- if not include_python and not include_typescript %}
+| (none yet) | The first build chooses the stack. |
+{%- endif %}
+
+## Data model
+
+<!-- The main things the app stores, their fields, and how they relate. A table or a Mermaid ER diagram. -->
+
+## Where business rules live
+
+<!-- Rules are enforced in one place (usually the backend), so they hold whatever a client or an AI agent does. Name that place and list the main rules. -->
+
+## External services
+
+<!-- Outside APIs, AI models and paid services, with the ADR that chose each one. "None" is a fine answer. -->
+
+## Environment variables
+
+<!-- Every variable the app reads, what it is for, and whether it is a secret. Names only; values live in .env, never here. Keep .env.example in step. -->
+
+| Name | Purpose | Secret? |
+|---|---|---|
+
+## Secrets
+
+Secrets live in `.env`, which git ignores. See the README for the private-folder link pattern.
+
+## Deployment
+
+<!-- How the app runs outside development, if it does. "Local only" is a fine answer. -->

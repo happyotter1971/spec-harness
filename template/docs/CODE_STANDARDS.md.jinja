@@ -1,0 +1,14 @@
+# Code standards
+
+1. Keep it simple. Write the plainest code that meets the spec; don't add layers, options or abstractions the spec doesn't need.
+2. Comment only when the code can't say it: a non-obvious reason, a workaround, a business rule's source.
+3. No overly defensive code. Handle errors where they can actually happen, and let the rest fail loudly.
+4. Small pieces. The linters cap complexity at 10, nesting at 4, functions at 50 lines and parameters at 5{% if include_typescript %}, and TypeScript files at 300 lines{% endif %}. Split the code; never raise the limits.
+{%- if include_python %}
+5. Python: always run through `uv run` (`uv run pytest`, `uv run python ...`), never bare `python3`. Type hints on every function.
+{%- endif %}
+{%- if include_typescript %}
+{{ 6 if include_python else 5 }}. TypeScript: strict mode, and never `any`. Use `unknown` and narrow it.
+{%- endif %}
+{{ 5 + (1 if include_python else 0) + (1 if include_typescript else 0) }}. Tests with every change. Tests never call a real AI model or outside service; use a stub.
+{{ 6 + (1 if include_python else 0) + (1 if include_typescript else 0) }}. Keep the README short and plain. No emojis anywhere in code, docs or messages.

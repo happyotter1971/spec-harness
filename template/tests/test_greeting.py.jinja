@@ -1,0 +1,9 @@
+from {{ package_name }}.greeting import greet
+
+
+def test_greets_by_name() -> None:
+    assert greet("  Ada ") == "Hello, Ada."
+
+
+def test_blank_name_gets_general_greeting() -> None:
+    assert greet("   ") == "Hello."

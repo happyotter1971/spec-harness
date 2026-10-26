@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Starts the app locally. The first build replaces this with the real command.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+echo "No run command yet. The first build will add it here (scripts/dev)."

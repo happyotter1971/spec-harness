@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(scripts/check)",
+      "Bash(scripts/check *)",
+      "Bash(scripts/format)",
+      "Bash(scripts/format *)",
+      "Bash(scripts/dev)",
+      "Bash(scripts/dev *)",
+{%- if include_python %}
+      "Bash(uv run *)",
+{%- endif %}
+{%- if include_typescript %}
+      "Bash(npm run *)",
+      "Bash(npx vitest *)",
+{%- endif %}
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git diff)",
+      "Bash(git diff *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ],
+    "deny": [
+      "Bash(git push)",
+      "Bash(git push *)",
+      "Bash(git commit * --no-verify*)",
+      "Bash(git commit --no-verify*)",
+      "Bash(git commit * -n *)",
+      "Bash(git commit -n *)",
+      "Bash(scripts/publish-github)",
+      "Bash(scripts/publish-github *)",
+      "Bash(gh repo create *)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Edit(./.env)",
+      "Edit(./.env.*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/after-edit",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-check",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "security-guidance@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+{%- if include_python %}
+    "pyright-lsp@claude-plugins-official": true,
+{%- endif %}
+{%- if include_typescript %}
+    "typescript-lsp@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+{%- endif %}
+    "superpowers@claude-plugins-official": false,
+    "feature-dev@claude-plugins-official": false
+  }
+}

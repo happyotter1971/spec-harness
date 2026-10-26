@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Stop hook: when Claude finishes a turn that left changed files, runs scripts/check.
+# If it fails, Claude is sent back to fix it once. On the second stop
+# (stop_hook_active) it never blocks again, so it cannot loop.
+set -uo pipefail
+cd "$CLAUDE_PROJECT_DIR"
+
+active=$(jq -r '.stop_hook_active // false')
+git rev-parse --git-dir >/dev/null 2>&1 || exit 0
+[[ -n $(git status --porcelain) ]] || exit 0
+
+if out=$(scripts/check 2>&1); then
+  exit 0
+fi
+
+if [[ $active == true ]]; then
+  jq -n '{systemMessage: "scripts/check still fails after one retry. Run scripts/check to see why."}'
+  exit 0
+fi
+
+{
+  echo "scripts/check failed. Fix the problems below before handing over; never weaken a check."
+  echo "$out" | tail -n 80
+} >&2
+exit 2

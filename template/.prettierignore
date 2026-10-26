@@ -1,0 +1,9 @@
+# Prettier formats code only; documents and generated files are left alone.
+*.md
+*.yml
+*.yaml
+docs/
+coverage/
+package-lock.json
+uv.lock
+.venv/

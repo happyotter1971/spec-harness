@@ -1,0 +1,21 @@
+# 0001. Record architecture decisions
+
+- **Status:** Accepted
+- **Date:** {{ '%Y-%m-%d' | strftime }}
+
+## Context
+
+Choices about frameworks, databases, outside services and rules shape the app for a long time. Coding agents start each session without memory, so the reasons behind a choice have to be written down where they will read them.
+
+## Options
+
+1. Record decisions in chat or commit messages: no extra files, but the reasons get lost.
+2. Record each significant decision as a short Architecture Decision Record (ADR) in `docs/decisions/`: a little writing, and the reasons stay with the code.
+
+## Decision
+
+Use ADRs, in the format in `0000-template.md`. Write one before adopting a framework, database or outside service, or when changing a rule the checks enforce. The plan proposes them; the owner accepts them.
+
+## Consequences
+
+Agents and the owner can see why the app is the way it is. `docs/ARCHITECTURE.md` describes the current result; the ADRs keep the history.

@@ -1,0 +1,48 @@
+# Spec: {{ project_name }}
+
+{{ description }}
+
+<!--
+This is the source of truth for what the app does. The agent builds from it, so write it for a reader who knows nothing else about the app.
+Keep it to 1 to 3 pages. If it grows past that, split the later parts into feature briefs (docs/features/).
+Replace every prompt below, then delete these comments.
+-->
+
+## Problem
+
+<!-- What is wrong or missing today, and for whom? Two or three sentences. Say why it matters now. -->
+
+## Users
+
+<!-- Who uses the app, and in what situation? One line each. Example: "A collector, at their desk, sorting a box of cards bought at a show." -->
+
+## What they need to do
+
+<!-- The main jobs, as numbered user goals in plain words. Example:
+1. Add a book to the reading list with its title and author.
+2. Mark a book as read.
+-->
+
+## Acceptance criteria
+
+<!--
+Each criterion is one testable sentence in EARS form, numbered so plans and tests can refer to it:
+- Always:      "The system shall <response>."
+- Event:       "When <trigger>, the system shall <response>."
+- State:       "While <state>, the system shall <response>."
+- Unwanted:    "If <unwanted condition>, then the system shall <response>."
+- Optional:    "Where <feature is included>, the system shall <response>."
+Good: "AC-3: When a book is marked as read, the system shall record today's date as the finish date."
+Bad:  "Reading list works well." (cannot be tested)
+Bad:  "The system shall use SQLite." (a design choice: put it in ARCHITECTURE.md or an ADR)
+-->
+
+- AC-1: When ..., the system shall ...
+
+## Non-goals
+
+<!-- What this app deliberately does not do, so the agent doesn't build it. Example: "No sign-in; one user on one machine." -->
+
+## Open questions
+
+<!-- Anything not yet decided. The agent asks about these before planning. Remove each one once answered, and move the answer into the sections above. -->

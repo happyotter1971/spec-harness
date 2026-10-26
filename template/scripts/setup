@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Sets up the app once: git repository, dependencies, pre-commit hook and first commit.
+# Safe to run again: it only reinstalls.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+missing=()
+need() {
+  command -v "$1" >/dev/null 2>&1 || missing+=("$1 (install: $2)")
+}
+need git "brew install git"
+need jq "brew install jq"
+need lefthook "brew install lefthook"
+need gitleaks "brew install gitleaks"
+if [[ -f pyproject.toml ]]; then
+  need uv "brew install uv"
+fi
+if [[ -f package.json ]]; then
+  need node "nvm install $(cat .nvmrc), or brew install node@24"
+  need npm "comes with node"
+fi
+if ((${#missing[@]})); then
+  echo "scripts/setup: missing tools. Install them, then run scripts/setup again:"
+  printf '  - %s\n' "${missing[@]}"
+  exit 1
+fi
+
+if [[ ! -d .git ]]; then
+  echo "== git init"
+  git init -q -b main
+fi
+
+if [[ -f pyproject.toml ]]; then
+  echo "== uv sync"
+  uv sync
+fi
+if [[ -f package.json ]]; then
+  echo "== npm install"
+  npm install --no-fund
+fi
+
+echo "== lefthook install"
+lefthook install
+
+# Claude Code does not fetch plugins that only project settings enable, so
+# install the ones .claude/settings.json turns on. Already installed is a no-op.
+if command -v claude >/dev/null 2>&1; then
+  echo "== Claude Code plugins"
+  for plugin in $(jq -r '.enabledPlugins | to_entries[] | select(.value) | .key' .claude/settings.json); do
+    claude plugin install "$plugin" --scope project 2>&1 | tail -n 1 || echo "Could not install $plugin; install it from /plugin in Claude Code."
+  done
+  if [[ -f pyproject.toml ]] && ! command -v pyright-langserver >/dev/null 2>&1; then
+    echo "Note: the pyright-lsp plugin needs Pyright on the PATH (npm install -g pyright)."
+  fi
+  if [[ -f package.json ]] && ! command -v typescript-language-server >/dev/null 2>&1; then
+    echo "Note: the typescript-lsp plugin needs typescript-language-server on the PATH (npm install -g typescript-language-server typescript)."
+  fi
+else
+  echo "Claude Code is not installed; skipping its plugins."
+fi
+
+if ! git rev-parse --verify --quiet HEAD >/dev/null; then
+  echo "== first commit (through the pre-commit hook)"
+  git add -A
+  git commit -q -m "Start the app from the app template"
+fi
+
+echo
+echo "Setup complete. Next: write docs/SPEC.md, then run /plan-build in Claude Code."

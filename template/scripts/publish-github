@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Puts this app on GitHub as a private repository, after the owner types "yes".
+# Usage: scripts/publish-github [--dry-run]
+# Agents never run this unless the owner asks in that session.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+dry_run=false
+if [[ ${1:-} == --dry-run ]]; then
+  dry_run=true
+elif [[ -n ${1:-} ]]; then
+  echo "Usage: scripts/publish-github [--dry-run]"
+  exit 2
+fi
+
+stop() {
+  echo "scripts/publish-github: $1"
+  echo "Nothing was created or pushed."
+  exit 1
+}
+
+# 1. The GitHub CLI is installed and signed in. Tokens stay with gh.
+command -v gh >/dev/null 2>&1 || stop "the GitHub CLI is not installed. Install it with: brew install gh"
+gh auth status >/dev/null 2>&1 || stop "the GitHub CLI is not signed in. Sign in with: gh auth login"
+account=$(gh api user --jq .login)
+
+# 2. A git repository with a clean working tree that passes every check.
+git rev-parse --verify --quiet HEAD >/dev/null || stop "this is not a git repository with a commit yet. Run scripts/setup first."
+[[ -z $(git status --porcelain) ]] || stop "the working tree has uncommitted changes. Commit or remove them first."
+scripts/check >/dev/null 2>&1 || stop "scripts/check fails. Fix it first (run scripts/check to see why)."
+
+# 3. Never overwrite: no existing remote, and the name is free.
+slug=$(sed -n 's/^project_slug: *//p' .copier-answers.yml 2>/dev/null)
+slug=${slug:-$(basename "$PWD")}
+[[ -z $(git remote) ]] || stop "this app already has a git remote ($(git remote | head -n 1))."
+if gh repo view "$account/$slug" >/dev/null 2>&1; then
+  stop "the repository $account/$slug already exists on GitHub."
+fi
+branch=$(git branch --show-current)
+
+echo "Repository: $account/$slug"
+echo "Account:    $account"
+echo "Visibility: private"
+echo "Branch:     $branch"
+echo "Commands:"
+echo "  gh repo create $slug --private --source . --push"
+echo "  gh repo view $account/$slug --json visibility,url"
+
+if [[ $dry_run == true ]]; then
+  echo
+  echo "Dry run: nothing was created or pushed."
+  exit 0
+fi
+
+# 4. Ask first. Anything other than "yes" cancels.
+echo
+read -r -p "Type yes to create this private repository and push: " answer
+[[ $answer == yes ]] || stop "cancelled."
+
+# 5. Create and push.
+gh repo create "$slug" --private --source . --push
+
+# 6. Confirm it is private.
+visibility=$(gh repo view "$account/$slug" --json visibility --jq .visibility)
+url=$(gh repo view "$account/$slug" --json url --jq .url)
+if [[ $visibility != PRIVATE ]]; then
+  echo "WARNING: $url reports visibility $visibility, not PRIVATE. Check it on GitHub now."
+  exit 1
+fi
+echo "Published privately: $url"

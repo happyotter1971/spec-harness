@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# PostToolUse hook: formats and lints the file Claude just edited (fast checks only).
+# Problems go straight back to Claude (exit code 2).
+set -uo pipefail
+cd "$CLAUDE_PROJECT_DIR"
+
+file=$(jq -r '.tool_input.file_path // empty')
+if [[ -z $file || ! -f $file || $file != "$CLAUDE_PROJECT_DIR"/* ]]; then
+  exit 0
+fi
+
+report() {
+  echo "$1" >&2
+  exit 2
+}
+
+case "$file" in
+  *.py)
+    [[ -f pyproject.toml ]] || exit 0
+    out=$(uv run ruff format --quiet "$file" 2>&1) || report "$out"
+    out=$(uv run ruff check --quiet "$file" 2>&1) || report "$out"
+    ;;
+  *.ts | *.tsx | *.js | *.mjs | *.cjs)
+    [[ -f package.json ]] || exit 0
+    out=$(npx --no-install prettier --write --log-level warn "$file" 2>&1) || report "$out"
+    out=$(npx --no-install eslint "$file" 2>&1) || report "$out"
+    ;;
+  *.json | *.css | *.html)
+    [[ -f package.json ]] || exit 0
+    out=$(npx --no-install prettier --write --log-level warn --ignore-unknown "$file" 2>&1) || report "$out"
+    ;;
+esac
+exit 0

@@ -1,0 +1,35 @@
+# Agent notes
+
+Notes for coding agents that apply only to this app. AGENTS.md holds the rules shared by every app; this file is where this app's specifics go. Keep it short.
+
+## Folders
+
+<!-- One line per top-level folder, kept current as the app grows. -->
+
+- `docs/`: requirements, plans, decisions and status. Read before working.
+- `scripts/`: `check`, `format`, `setup`, `dev` and `publish-github`.
+{%- if include_python %}
+- `src/{{ package_name }}/`: the Python package.
+{%- endif %}
+{%- if include_typescript %}
+- `src/` (`.ts` files): the TypeScript code.
+{%- endif %}
+{%- if include_python or include_typescript %}
+- `tests/`: the tests.
+{%- endif %}
+
+## Off limits
+
+<!--
+Paths the agent must never read or edit, such as held-out answers used to test an AI feature (for example evals/answers/).
+List each one here, and also add it to the "deny" list in .claude/settings.local.json so Claude Code enforces it:
+  "permissions": { "deny": ["Read(./evals/answers/**)", "Edit(./evals/answers/**)"] }
+-->
+
+None.
+
+## Quirks
+
+<!-- Anything an agent keeps getting wrong in this app, and the right way to do it. -->
+
+None yet.

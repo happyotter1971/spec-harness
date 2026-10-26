@@ -1,0 +1,19 @@
+# Weekly pull requests to update dependencies. Each one runs the same checks.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+{%- if include_python %}
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+{%- endif %}
+{%- if include_typescript %}
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+{%- endif %}

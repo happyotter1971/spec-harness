@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Runs every check for the layers present and exits non-zero on any failure.
+# Usage: scripts/check [python|typescript]   (no argument: every layer)
+set -uo pipefail
+cd "$(dirname "$0")/.."
+
+only="${1:-all}"
+failed=()
+
+step() {
+  local name="$1"
+  shift
+  echo "== $name"
+  if ! "$@"; then
+    failed+=("$name")
+  fi
+}
+
+ran=0
+if [[ -f pyproject.toml && ($only == all || $only == python) ]]; then
+  ran=1
+  step "python: format" uv run ruff format --check
+  step "python: lint" uv run ruff check
+  step "python: types" uv run pyright
+  step "python: tests" uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+fi
+
+if [[ -f package.json && ($only == all || $only == typescript) ]]; then
+  ran=1
+  step "typescript: format" npx --no-install prettier --check .
+  step "typescript: lint" npx --no-install eslint .
+  step "typescript: types" npx --no-install tsc --noEmit
+  step "typescript: tests" npx --no-install vitest run --coverage
+fi
+
+if ((ran == 0)); then
+  echo "No code layers yet; nothing to check."
+fi
+
+if ((${#failed[@]})); then
+  echo
+  echo "scripts/check FAILED:"
+  printf '  - %s\n' "${failed[@]}"
+  exit 1
+fi
+echo "scripts/check passed."
