@@ -103,6 +103,8 @@ When the template improves, bring the improvements into an app from its folder, 
 copier update
 ```
 
+Copier fetches the template from GitHub and moves the app to the latest release tag; the template's [CHANGELOG](CHANGELOG.md) says what each release changes.
+
 Copier applies the template changes to template-owned files (AGENTS.md, PROCESS.md, the scripts, the lint configs, the Claude Code settings) and never touches app-owned ones (the spec, architecture, status, agent notes, briefs, plans, decisions, `scripts/dev`, `.env.example` and your code). If you edited a template-owned file and the template changed the same lines, Copier marks the conflict in the file with `<<<<<<<` and `>>>>>>>` lines for you to resolve. Run `scripts/check`, then commit.
 
 ### Publishing
@@ -201,7 +203,7 @@ If all six pass, approve it.
 
 **What to do.** Usually nothing: the agent sees the failure and fixes it. If you're fixing it yourself, run `scripts/format` for formatting problems and read the message for the rest.
 
-**Why checks are never weakened.** A check that is lowered whenever it fails stops protecting anything. The agent's instructions forbid making a check pass by relaxing it: no loosened limits, no disabled rules, no excluded files. If a rule looks wrong, the agent stops and asks. If a rule really is wrong: write an ADR explaining why, change the rule in the template (not in one app), and bring it into apps with `copier update`. That way the change is deliberate, recorded, and the same everywhere.
+**Why checks are never weakened.** A check that is lowered whenever it fails stops protecting anything. The agent's instructions forbid making a check pass by relaxing it: no loosened limits, no disabled rules, no excluded files. If a rule looks wrong, the agent stops and asks. If a rule really is wrong: write an ADR explaining why, change the rule in the template (or your fork of it), not in one app, release it as a new tag, and bring it into apps with `copier update`. That way the change is deliberate, recorded, and the same everywhere.
 
 ## 7. Worked example: a reading list
 
