@@ -66,4 +66,4 @@ if ! git rev-parse --verify --quiet HEAD >/dev/null; then
 fi
 
 echo
-echo "Setup complete. Next: write docs/SPEC.md, then run /plan-build in Claude Code."
+echo "Setup complete. Next: run /write-spec in Claude Code (or write docs/SPEC.md yourself), then /plan-build."

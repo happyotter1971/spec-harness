@@ -62,7 +62,9 @@ The variable names (never the values) also go in `.env.example`, which is commit
 
 ### Write the spec
 
-Open `docs/SPEC.md` and replace each prompt (section 4 explains how). Commit it when it reads well: `git add docs/SPEC.md` then `git commit -m "Write the spec"`.
+Run `/write-spec` and answer its questions, one at a time, or open `docs/SPEC.md` and replace each prompt yourself (section 4 explains how). Either way, read the result and commit it when it reads well: `git add docs/SPEC.md` then `git commit -m "Write the spec"`.
+
+If the idea came out of discovery (the `/outcomes`, `/research` and `/options` skills from the separate discovery-skills repository), copy its folder in first, with `cp -R <folder>/discovery docs/discovery`. `/write-spec` then builds the spec from the outcomes and research, and records the decision as ADR 0002. It refuses to start until `discovery/DECISION.md` is Accepted with deliverable `app`; discovery can also end in a doc, a deck, a purchase or nothing, and those never need an app.
 
 **Done when:** every section is filled in, each acceptance criterion is one testable sentence, and anything undecided is listed under "Open questions".
 
@@ -199,9 +201,10 @@ The dry run shows the repository name, your GitHub account, "private" and the co
 
 ## 4. Writing a good spec
 
-`docs/SPEC.md` has six sections. Write it for a reader who knows nothing else about the app.
+`docs/SPEC.md` has seven sections. Write it for a reader who knows nothing else about the app.
 
 - **Problem:** what is wrong or missing today, for whom, and why now. Two or three sentences.
+- **Success measures:** how you will know the app is worth it, with numbers and a time frame. They guide the build; tests check the acceptance criteria.
 - **Users:** who uses the app and in what situation, one line each.
 - **What they need to do:** the main jobs as numbered goals in plain words.
 - **Acceptance criteria:** numbered, testable sentences (below).
@@ -433,6 +436,7 @@ The whole app, from `copier copy` to a finished first build, took one spec, thre
 
 | Type this | Or say | Result |
 |---|---|---|
+| `/write-spec` | "Please write the spec" | `docs/SPEC.md` from `docs/discovery/` or an interview, then it stops |
 | `/new-feature <name>` | "Please write a brief for <name>" | `docs/features/<name>.md`, no code |
 | `/plan-build` | "Please plan the first build" | `docs/plans/PLAN.md`, then it stops |
 | `/plan-build <name>` | "Please plan <name>" | `docs/plans/PLAN_<name>.md`, then it stops |
@@ -443,7 +447,7 @@ The whole app, from `copier copy` to a finished first build, took one spec, thre
 
 **Yours, in your own terminal tab:** commit the spec, briefs and approved plans; accept ADRs; fill `.env` and `.env.example`; push and publish.
 
-**The order of work:** spec, `/plan-build`, answer questions, review plan, accept ADRs, commit, `/clear`, `/implement-plan`, review build, STATUS.md.
+**The order of work:** spec (`/write-spec` or by hand), `/plan-build`, answer questions, review plan, accept ADRs, commit, `/clear`, `/implement-plan`, review build, STATUS.md.
 
 **Every later change:** write it down (brief or spec), review, commit, then code; bugs start with a failing test. See "Every change after the first build" in section 3.
 

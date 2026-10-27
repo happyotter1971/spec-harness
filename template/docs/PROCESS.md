@@ -4,6 +4,7 @@ How work on this app is planned, built and checked. Every request below has a ma
 
 | Request | Skill | Result |
 |---|---|---|
+| "Please write the spec" | `/write-spec` | `docs/SPEC.md` |
 | "Please write a brief for <name>" | `/new-feature <name>` | `docs/features/<name>.md` |
 | "Please plan the first build" | `/plan-build` | `docs/plans/PLAN.md` |
 | "Please plan <name>" | `/plan-build <name>` | `docs/plans/PLAN_<name>.md` |
@@ -13,6 +14,10 @@ How work on this app is planned, built and checked. Every request below has a ma
 ## Setup
 
 Run `scripts/setup` once in a new app. It creates the git repository, installs dependencies and the pre-commit hook, and makes the first commit. Running it again is safe.
+
+## Spec
+
+When asked to write the spec, use `docs/discovery/` if it exists: the outcomes, research briefs and decision from the discovery skills. Write nothing until its `DECISION.md` is Accepted with deliverable `app`; then record the decision as the next ADR in `docs/decisions/`. With no discovery files, interview the owner one question at a time. Fill every section of `docs/SPEC.md`, with acceptance criteria in EARS form and a narrow first build, and stop. No code, no plan.
 
 ## Brief
 

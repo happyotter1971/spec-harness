@@ -2,6 +2,13 @@
 
 All notable changes to the template. Versions are git tags; `copier update` moves an app to the latest one.
 
+## Unreleased
+
+- New `/write-spec` skill: drafts `docs/SPEC.md` by interviewing the owner, or from `docs/discovery/` (outcomes, research briefs and an accepted decision from the separate discovery skills), and records that decision as the next ADR. It refuses to start until the decision is Accepted with deliverable `app`.
+- SPEC gains a "Success measures" section (new apps only; existing specs are app-owned and unchanged).
+- `scripts/setup` points to `/write-spec` as the next step.
+- PROCESS gains a "Spec" section and a `/write-spec` row; GUIDE's "Write the spec", section 4 and cheat sheet cover both.
+
 ## v1.1.3
 
 - GUIDE: explains Copier's "Make sure Git >= 2.24" hint after an update.
