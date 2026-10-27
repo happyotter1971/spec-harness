@@ -156,7 +156,7 @@ The template and your apps are separate repositories. Improvements flow one way:
 
 1. See what changed: read the newest entries in the template's [CHANGELOG](CHANGELOG.md) on GitHub.
 2. Start clean: `git status` must say "nothing to commit". Commit or discard your work first; Copier refuses to run otherwise.
-3. Update: `copier update`. Copier fetches the latest release tag from GitHub, asks the setup questions again with your earlier answers filled in (press Enter to keep each one), and applies the changes. It ends without a summary.
+3. Update: `copier update`. Copier fetches the latest release tag from GitHub, asks the setup questions again with your earlier answers filled in (press Enter to keep each one), and applies the changes. It ends without a summary, sometimes with the line "Make sure Git >= 2.24 is installed to improve updates." That is a general hint, not an error: run `git --version`, and if it shows 2.24 or later (any recent Mac does), ignore it.
 4. Review what it did: `git status` and `git diff`. Expect changes only in template-owned files (AGENTS.md, PROCESS.md, the scripts, the lint configs, `.claude/settings.json`, `.github/`) plus `.copier-answers.yml`, which records the new version. App-owned files (the spec, architecture, status, agent notes, briefs, plans, decisions, `scripts/dev`, `.env.example`, `src/` and `tests/`) are never changed.
 5. Resolve any conflict. If you and the template changed the same lines, `git status` shows the file as `UU` with `<<<<<<<` and `>>>>>>>` markers; keep what you want and delete the markers (section 8). If you both added the same lines, Copier merges them quietly.
 6. Check and commit: `scripts/check`, then `git commit -am "Update to template vX.Y.Z"` and `git push`.

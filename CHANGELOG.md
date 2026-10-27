@@ -2,6 +2,10 @@
 
 All notable changes to the template. Versions are git tags; `copier update` moves an app to the latest one.
 
+## Unreleased
+
+- GUIDE: explains Copier's "Make sure Git >= 2.24" hint after an update.
+
 ## v1.1.2
 
 - `copier update` no longer re-creates the sample greeting files in apps that deleted them.
