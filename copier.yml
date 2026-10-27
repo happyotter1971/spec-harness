@@ -28,6 +28,14 @@ _exclude:
   - "{% if not include_python and not include_typescript %}src{% endif %}"
   - "{% if not include_python and not include_typescript %}tests{% endif %}"
 
+# The sample code is for new apps only. Without this, `copier update` would
+# re-create it in every app that deleted it, because src/** and tests/** are
+# skip-if-exists (created when missing).
+  - "{% if _copier_operation == 'update' %}src/greeting.ts{% endif %}"
+  - "{% if _copier_operation == 'update' %}src/{{ package_name }}/greeting.py{% endif %}"
+  - "{% if _copier_operation == 'update' %}tests/greeting.test.ts{% endif %}"
+  - "{% if _copier_operation == 'update' %}tests/test_greeting.py{% endif %}"
+
 # App-owned files: created once, never touched by `copier update`.
 _skip_if_exists:
   - README.md

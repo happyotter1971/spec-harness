@@ -150,15 +150,41 @@ After every change, `docs/SPEC.md`, `docs/ARCHITECTURE.md` and `docs/STATUS.md` 
 
 ### Template updates
 
-When the template improves, bring the improvements into an app from its folder, with everything committed:
+The template and your apps are separate repositories. Improvements flow one way: you change the template, release it as a new version, then pull that version into each app. Two jobs, in two folders.
 
-```bash
-copier update
-```
+**Pulling a new template version into an app.** Do this in the app's folder, in your own terminal tab.
 
-Copier fetches the template from GitHub and moves the app to the latest release tag; the template's [CHANGELOG](CHANGELOG.md) says what each release changes.
+1. See what changed: read the newest entries in the template's [CHANGELOG](CHANGELOG.md) on GitHub.
+2. Start clean: `git status` must say "nothing to commit". Commit or discard your work first; Copier refuses to run otherwise.
+3. Update: `copier update`. Copier fetches the latest release tag from GitHub, asks the setup questions again with your earlier answers filled in (press Enter to keep each one), and applies the changes. It ends without a summary.
+4. Review what it did: `git status` and `git diff`. Expect changes only in template-owned files (AGENTS.md, PROCESS.md, the scripts, the lint configs, `.claude/settings.json`, `.github/`) plus `.copier-answers.yml`, which records the new version. App-owned files (the spec, architecture, status, agent notes, briefs, plans, decisions, `scripts/dev`, `.env.example`, `src/` and `tests/`) are never changed.
+5. Resolve any conflict. If you and the template changed the same lines, `git status` shows the file as `UU` with `<<<<<<<` and `>>>>>>>` markers; keep what you want and delete the markers (section 8). If you both added the same lines, Copier merges them quietly.
+6. Check and commit: `scripts/check`, then `git commit -am "Update to template vX.Y.Z"` and `git push`.
 
-Copier applies the template changes to template-owned files (AGENTS.md, PROCESS.md, the scripts, the lint configs, the Claude Code settings) and never touches app-owned ones (the spec, architecture, status, agent notes, briefs, plans, decisions, `scripts/dev`, `.env.example` and your code). If you edited a template-owned file and the template changed the same lines, Copier marks the conflict in the file with `<<<<<<<` and `>>>>>>>` lines for you to resolve. Run `scripts/check`, then commit.
+To move to a particular release instead of the latest, add `--vcs-ref v1.1.0` (any tag). To undo an update you haven't committed, `git checkout HEAD -- .` restores every tracked file; delete any new files `git status` lists.
+
+**Changing the template itself.** Do this in your working copy of the template (for example `~/Code/spec-harness`), never in an app. A fix made only in one app is lost at the next update and missing from every other app.
+
+1. Edit the files: `GUIDE.md`, `README.md`, `copier.yml`, or anything under `template/`.
+2. Add a line under "## Unreleased" at the top of `CHANGELOG.md` saying what changed.
+3. Test it by generating a throwaway app from your uncommitted edits:
+
+   ```bash
+   rm -rf /tmp/test-app && copier copy --defaults --vcs-ref HEAD -d project_name="Test App" -d description="Test" ~/Code/spec-harness /tmp/test-app && cd /tmp/test-app && scripts/setup && scripts/check
+   ```
+
+   It should end with `scripts/check passed.` The "Dirty template changes included" warning is expected. Guide-only changes can skip this step.
+4. Commit: `git commit -am "<what changed>"`.
+5. Release: pick the next version (the last number for fixes and guide changes, the middle one for new behavior), rename "## Unreleased" to it, commit, tag and push:
+
+   ```bash
+   sed -i '' 's/^## Unreleased/## v1.2.0/' CHANGELOG.md
+   git commit -am "Release v1.2.0" && git tag v1.2.0
+   git push origin main v1.2.0
+   ```
+
+   Apps see a new version only once its tag is on GitHub.
+6. Pull it into each app with the steps above.
 
 ### Publishing
 
@@ -399,7 +425,7 @@ The whole app, from `copier copy` to a finished first build, took one spec, thre
 | `git add docs && git commit -m "..."` | Commit a spec, brief or approved plan |
 | `sed -i '' 's/\*\*Status:\*\* Proposed/**Status:** Accepted/' docs/decisions/<n>-*.md` | Accept an ADR |
 | `git push` | Push new commits once the app is published |
-| `copier update` | Bring in template improvements (commit first) |
+| `copier update` | Bring in template improvements (commit first; see "Template updates") |
 | `scripts/publish-github --dry-run` | Show what publishing would do |
 | `scripts/publish-github` | Create a private GitHub repository and push, after you type `yes` |
 
