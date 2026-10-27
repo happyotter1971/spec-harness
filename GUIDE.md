@@ -112,19 +112,41 @@ Run `/clear` first. This starts a fresh session: the docs and the plan carry all
 
 Read the report, then try the app yourself with `scripts/dev`. Read `docs/STATUS.md`: it should say what's built, how to run it, what was checked by hand, known issues and the next action. If something is wrong, say so; small fixes are handled as a change (below).
 
-### Later features
+### Every change after the first build
 
-1. `/new-feature reading-goals` (any short name): the agent interviews you one question at a time and writes the brief in `docs/features/reading-goals.md`. No code. Read it with the same eye as the spec: a feature that quietly reverses one of the spec's non-goals belongs in a spec change first. Then commit it: `git add docs/features/reading-goals.md && git commit -m "Brief: reading goals"`.
-2. `/plan-build reading-goals`: it writes `docs/plans/PLAN_reading-goals.md` and stops.
-3. Review the plan, accept any new ADRs, commit (`git add docs && git commit -m "Plan reading goals"`), `/clear`, then `/implement-plan reading-goals`.
+Every change follows the same order: **write it down, review it, commit it, then code.** The commit before the code is the point. It records what you asked for, so the build can be checked against it, and you can always see whether a surprise came from the request or from the code.
 
-The brief's "What stays the same" section is where you protect what already works: name the rules and screens this feature must not change.
+Pick the path by the size of the change:
 
-### Changing behavior
+| The change | Example | Write it in | Then build with |
+|---|---|---|---|
+| A new feature | "Add sports cards" | A brief, `docs/features/<name>.md` | A plan and `/implement-plan <name>` |
+| A rule or behavior change | "Fetch parallels for the best match" | `docs/SPEC.md` (and the brief it belongs to) | Plan mode |
+| A bug: the app doesn't do what the docs already say | "The search misses single-player cards" | Nothing new: the docs are already right | A request that starts with a failing test |
 
-When the app should behave differently, change `docs/SPEC.md` first, then ask for the change. For a small change (a fix, a message, a limit), use **plan mode**: press Shift+Tab until it says plan mode, describe the change, and Claude proposes the edits; approve them and it makes them. Anything bigger than a small change gets a brief and a plan instead.
+**A new feature.**
 
-After every build or change, `docs/SPEC.md`, `docs/ARCHITECTURE.md` and `docs/STATUS.md` describe the app as it now is.
+1. In Claude Code: `/new-feature <name>`. The agent interviews you one question at a time and writes `docs/features/<name>.md`. No code.
+2. Review the brief like the spec. Its "What stays the same" section protects what already works: name the rules and screens the feature must not change. A feature that quietly reverses one of the spec's non-goals needs a spec change first. Ask for edits in plain words until it reads right.
+3. Commit it, in your own tab: `git add docs && git commit -m "Brief: <name>"`.
+4. In Claude Code: `/plan-build <name>`. It asks about anything unclear, writes `docs/plans/PLAN_<name>.md` and any proposed ADRs, then stops.
+5. Review the plan (section 5) and accept the ADRs yourself. Commit: `git add docs && git commit -m "Plan <name>"`.
+6. In Claude Code: `/clear`, then `/implement-plan <name>`. It builds, checks and commits each phase.
+7. Try it yourself, read `docs/STATUS.md`, then `git push`.
+
+**A rule or behavior change.**
+
+1. In Claude Code, ask for the doc change only: "Spec change, no code yet: <the new rule>. Update docs/SPEC.md and any brief or ADR it affects."
+2. Read the diff (`git diff docs`) and check it says what you mean.
+3. Commit it: `git add docs && git commit -m "Spec: <the change>"`.
+4. In Claude Code, press Shift+Tab until it says plan mode, and say: "Implement the change now in the spec, with tests first." Approve its proposal if it matches the spec. It builds, runs `scripts/check` and commits.
+5. Try it, then `git push`.
+
+If the change touches several screens or services, or needs a new outside service, treat it as a feature instead: a brief, a plan and `/implement-plan`.
+
+**A bug.** The docs already describe the right behavior, so there is nothing to write first. Tell the agent what happened and ask for the fix in this order: "Reproduce it, write a test that fails, then fix it, and update Known issues in STATUS.md." If the bug involves an outside service, add "record one real response as a test fixture." Then try it and `git push`. If fixing it means deciding how the app should behave, stop: that is a rule change, so update the spec first.
+
+After every change, `docs/SPEC.md`, `docs/ARCHITECTURE.md` and `docs/STATUS.md` describe the app as it now is.
 
 ### Template updates
 
@@ -396,6 +418,8 @@ The whole app, from `copier copy` to a finished first build, took one spec, thre
 **Yours, in your own terminal tab:** commit the spec, briefs and approved plans; accept ADRs; fill `.env` and `.env.example`; push and publish.
 
 **The order of work:** spec, `/plan-build`, answer questions, review plan, accept ADRs, commit, `/clear`, `/implement-plan`, review build, STATUS.md.
+
+**Every later change:** write it down (brief or spec), review, commit, then code; bugs start with a failing test. See "Every change after the first build" in section 3.
 
 **Files:** spec `docs/SPEC.md`; plans `docs/plans/`; briefs `docs/features/`; decisions `docs/decisions/`; status `docs/STATUS.md`; app-specific agent notes `docs/AGENT_NOTES.md`.
 

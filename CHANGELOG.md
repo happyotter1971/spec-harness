@@ -2,6 +2,10 @@
 
 All notable changes to the template. Versions are git tags; `copier update` moves an app to the latest one.
 
+## Unreleased
+
+- GUIDE: "Later features" and "Changing behavior" become one section, "Every change after the first build": write it down, review, commit, then code, with step-by-step paths for a new feature, a rule change and a bug.
+
 ## v1.1.0
 
 - GUIDE: answers to questions from the first real app build (Card Value). Which commands go in Claude Code and which in your own terminal tab; a new "Add API keys" step (private `.env` link, `.env.example` is yours to edit); keep the first build narrow; accepting an ADR yourself, with the command; committing briefs and plans; when to publish and checking the first CI run; what Dependabot's first pull requests and a failed "uv" job mean. Cheat sheet gains the owner's commands.
