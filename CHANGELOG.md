@@ -2,7 +2,7 @@
 
 All notable changes to the template. Versions are git tags; `copier update` moves an app to the latest one.
 
-## Unreleased
+## v1.1.3
 
 - GUIDE: explains Copier's "Make sure Git >= 2.24" hint after an update.
 
