@@ -2,7 +2,7 @@
 
 All notable changes to the template. Versions are git tags; `copier update` moves an app to the latest one.
 
-## Unreleased
+## v1.1.2
 
 - `copier update` no longer re-creates the sample greeting files in apps that deleted them.
 - GUIDE: "Template updates" now gives step-by-step instructions for both jobs: pulling a new version into an app, and changing, testing and releasing the template itself.
