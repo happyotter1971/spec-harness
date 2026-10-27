@@ -29,6 +29,8 @@ Two words you'll see often:
 
 ## 3. The lifecycle, step by step, in Claude Code
 
+**Two windows.** Keep two Terminal tabs open in the app's folder (Cmd+T opens a new one). In the first, run `claude` and talk to the agent: slash commands such as `/plan-build` and plain requests go there. Use the second for commands you run yourself: `git`, `scripts/...`, `sed` and anything that publishes or touches secrets. Code blocks marked `bash` in this guide go in the second tab. (Inside Claude Code, a line starting with `!` also runs as a shell command, but a separate tab keeps your actions and the agent's apart.) When a block has several commands that publish or change things, paste them one line at a time so you read each result before the next runs.
+
 ### Start a new app
 
 ```bash
@@ -43,11 +45,28 @@ Copier asks six questions: the app's name ("Card Value"), its folder and package
 
 **Done when:** `scripts/check` ends with `scripts/check passed.` and `git log` shows the first commit.
 
+### Add API keys
+
+Skip this until the app needs an outside service. Keys live in `.env`, which git ignores and the agent is blocked from reading. Keep the real file outside the project, in a folder only you can read, and link to it:
+
+```bash
+mkdir -p ~/.private/my-app && chmod 700 ~/.private/my-app
+touch ~/.private/my-app/.env && chmod 600 ~/.private/my-app/.env
+ln -s ~/.private/my-app/.env .env
+open -e ~/.private/my-app/.env
+```
+
+Run these from the app's folder, because `ln -s` creates the link where you are. In the file, write one `NAME=value` line per key, with no spaces or quotes. `ls -l .env` should show `.env -> /Users/<you>/.private/my-app/.env`.
+
+The variable names (never the values) also go in `.env.example`, which is committed. You add them yourself: the agent's block on `.env.*` covers `.env.example` too, so a plan's "Owner steps" will ask you to. Never paste a key into Claude Code or a chat. For a paid API, set a monthly spend limit in the vendor's console before the first live run.
+
 ### Write the spec
 
 Open `docs/SPEC.md` and replace each prompt (section 4 explains how). Commit it when it reads well: `git add docs/SPEC.md` then `git commit -m "Write the spec"`.
 
 **Done when:** every section is filled in, each acceptance criterion is one testable sentence, and anything undecided is listed under "Open questions".
+
+Keep the first build narrow: the smallest slice that is useful on its own (Card Value's first build covered one kind of card, one card per photo). Everything else becomes a later feature with its own brief, and says so under "Non-goals".
 
 ### Plan the first build
 
@@ -63,7 +82,19 @@ Open Claude Code in the app's folder (`claude`) and type:
 
 ### Review the plan
 
-Read the plan with the checklist in section 5. Ask for changes in plain words ("Use one command name, not two"); the agent edits the plan. When you're happy, commit it.
+Read the plan with the checklist in section 5. Ask for changes in plain words ("Use one command name, not two"); the agent edits the plan. When you're happy, accept any proposed ADRs (below) and commit the plan, the ADRs and the spec answers together:
+
+```bash
+git add docs && git commit -m "Plan first build"
+```
+
+**Accepting an ADR.** An ADR records your decision, so you accept it, not the agent. Read it, check any vendor facts it relies on (prices, free-tier limits, terms of use) on the vendor's own pages, then change its status line from `- **Status:** Proposed` to `- **Status:** Accepted`, in any editor or with:
+
+```bash
+sed -i '' 's/\*\*Status:\*\* Proposed/**Status:** Accepted/' docs/decisions/0002-*.md
+```
+
+(`sed -i ''` is the macOS form; on Linux use `sed -i`.) If a plan says the build will mark ADRs as accepted, ask the agent to remove that step.
 
 ### Build it
 
@@ -83,9 +114,9 @@ Read the report, then try the app yourself with `scripts/dev`. Read `docs/STATUS
 
 ### Later features
 
-1. `/new-feature reading-goals` (any short name): the agent interviews you one question at a time and writes the brief in `docs/features/reading-goals.md`. No code.
+1. `/new-feature reading-goals` (any short name): the agent interviews you one question at a time and writes the brief in `docs/features/reading-goals.md`. No code. Read it with the same eye as the spec: a feature that quietly reverses one of the spec's non-goals belongs in a spec change first. Then commit it: `git add docs/features/reading-goals.md && git commit -m "Brief: reading goals"`.
 2. `/plan-build reading-goals`: it writes `docs/plans/PLAN_reading-goals.md` and stops.
-3. Review the plan, `/clear`, then `/implement-plan reading-goals`.
+3. Review the plan, accept any new ADRs, commit (`git add docs && git commit -m "Plan reading goals"`), `/clear`, then `/implement-plan reading-goals`.
 
 The brief's "What stays the same" section is where you protect what already works: name the rules and screens this feature must not change.
 
@@ -114,7 +145,9 @@ scripts/publish-github --dry-run
 scripts/publish-github
 ```
 
-The dry run shows the repository name, your GitHub account, "private" and the commands, and changes nothing. The real run checks that the GitHub CLI is signed in, the working tree is clean, `scripts/check` passes, there is no remote yet and the name is free. It then waits for you to type `yes`, creates a private repository, pushes, and confirms GitHub reports it as private. If the app includes GitHub Actions, the push starts the first check run.
+**When to publish.** Any time after the first build passes `scripts/check`. Local commits already let you roll back, so publishing isn't required, but it is worth doing before the first feature: it gives you an off-machine backup, starts CI (if chosen), and lets the agent run `/security-review`, which needs a GitHub remote. Run the two commands one at a time and read the dry run before the real one.
+
+The dry run shows the repository name, your GitHub account, "private" and the commands, and changes nothing. The real run checks that the GitHub CLI is signed in, the working tree is clean, `scripts/check` passes, there is no remote yet and the name is free. It then waits for you to type `yes`, creates a private repository, pushes, and confirms GitHub reports it as private. If the app includes GitHub Actions, the push starts the first check run: open the repository's Actions tab and confirm it goes green. Dependabot also runs within minutes of the first push; section 8 explains its first pull requests. After publishing, push new commits yourself with `git push`; the agent can't.
 
 ## 4. Writing a good spec
 
@@ -195,9 +228,9 @@ If all six pass, approve it.
 **What Claude Code allows and blocks** (set in `.claude/settings.json`):
 
 - Allowed without asking: `scripts/check`, `scripts/format`, `scripts/dev`, `uv run`, `npm run`, `npx vitest`, `git status`, `git diff`, `git add`, `git commit`.
-- Blocked: `git push`, `scripts/publish-github`, `gh repo create`, `git commit --no-verify`, and reading or editing `.env`.
+- Blocked: `git push`, `scripts/publish-github`, `gh repo create`, `git commit --no-verify`, reading or editing `.env` (and `.env.example`), and reading or editing `evals/answers/`.
 - You can still push or publish yourself, or approve a one-off when you ask for it in the session.
-- If an app has files the agent must never read (such as held-out answers for testing an AI feature), list them under "Off limits" in `docs/AGENT_NOTES.md` and add them to `.claude/settings.local.json` as the comment there shows.
+- Held-out answers for testing an AI feature go in `evals/answers/`, which is already blocked, so the agent can't tune its work to the answers. For any other path the agent must never read, list it under "Off limits" in `docs/AGENT_NOTES.md` and add it to the deny list in `.claude/settings.json`, which is committed. Don't use `.claude/settings.local.json` for this: git ignores it, so the block disappears on a fresh clone. Because a template update can change `.claude/settings.json`, also have the agent add a test that fails if your deny rules go missing; `scripts/check` then catches it.
 
 **What a failure looks like.** `scripts/check` prints each step as it runs (`== python: lint`) and ends with either `scripts/check passed.` or a list of the steps that failed. The failing tool's own message, above the list, says what and where.
 
@@ -320,6 +353,10 @@ The whole app, from `copier copy` to a finished first build, took one spec, thre
 
 **`copier update` refuses to run.** It needs a git repository with everything committed. Run `git status`, commit or remove the changes, and try again.
 
+**Dependabot opened pull requests right after the first push.** That is expected: it checks every dependency once and then weekly. Each pull request runs the full checks. A red one, typically a major version jump such as TypeScript 6 to 7, means the checks caught an upgrade that breaks the app: close it, or plan the upgrade as a change. A green major upgrade can still be wrong for the app, for example `@types/node` ahead of the Node version you run: close it too. Merge only the ones you understand.
+
+**Dependabot's "uv" (or "npm") update job itself failed.** That is Dependabot failing to read the project, not a failing check. Find the reason with `gh run list` and `gh run view <id> --log-failed`. The usual cause is a language version newer than Dependabot supports yet (for example "Dependabot detected the following Python requirement for your project: '>=3.15'"). The job starts working again once Dependabot adds support; your own checks are unaffected.
+
 **`scripts/setup` reports a missing tool.** It names the tool and the command to install it (for example `brew install lefthook`). Install it and run `scripts/setup` again.
 
 **`npm install` fails with ESTRICTALLOWSCRIPTS.** A new package wants to run an install script, which the template blocks unless approved. Decide whether you trust it: `npm approve-scripts <package>` allows it, `npm deny-scripts <package>` skips it. The choice is recorded in `package.json` under `allowScripts`.
@@ -337,6 +374,9 @@ The whole app, from `copier copy` to a finished first build, took one spec, thre
 | `scripts/check` | Every check; must pass before handover |
 | `scripts/format` | Format everything |
 | `scripts/dev` | Start the app locally |
+| `git add docs && git commit -m "..."` | Commit a spec, brief or approved plan |
+| `sed -i '' 's/\*\*Status:\*\* Proposed/**Status:** Accepted/' docs/decisions/<n>-*.md` | Accept an ADR |
+| `git push` | Push new commits once the app is published |
 | `copier update` | Bring in template improvements (commit first) |
 | `scripts/publish-github --dry-run` | Show what publishing would do |
 | `scripts/publish-github` | Create a private GitHub repository and push, after you type `yes` |
@@ -353,7 +393,9 @@ The whole app, from `copier copy` to a finished first build, took one spec, thre
 | `/clear` | | Fresh session; do this after approving a plan |
 | Shift+Tab | | Plan mode, for small changes outside a plan |
 
-**The order of work:** spec, `/plan-build`, answer questions, review plan, `/clear`, `/implement-plan`, review build, STATUS.md.
+**Yours, in your own terminal tab:** commit the spec, briefs and approved plans; accept ADRs; fill `.env` and `.env.example`; push and publish.
+
+**The order of work:** spec, `/plan-build`, answer questions, review plan, accept ADRs, commit, `/clear`, `/implement-plan`, review build, STATUS.md.
 
 **Files:** spec `docs/SPEC.md`; plans `docs/plans/`; briefs `docs/features/`; decisions `docs/decisions/`; status `docs/STATUS.md`; app-specific agent notes `docs/AGENT_NOTES.md`.
 

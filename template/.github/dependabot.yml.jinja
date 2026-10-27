@@ -16,4 +16,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Major versions of these are deliberate upgrades (the template pins
+    # TypeScript, and @types/node must match the Node version you run).
+    ignore:
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 {%- endif %}

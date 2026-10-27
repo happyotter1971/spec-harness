@@ -21,9 +21,11 @@ Notes for coding agents that apply only to this app. AGENTS.md holds the rules s
 ## Off limits
 
 <!--
-Paths the agent must never read or edit, such as held-out answers used to test an AI feature (for example evals/answers/).
-List each one here, and also add it to the "deny" list in .claude/settings.local.json so Claude Code enforces it:
-  "permissions": { "deny": ["Read(./evals/answers/**)", "Edit(./evals/answers/**)"] }
+Paths the agent must never read or edit. Held-out answers used to test an AI feature go in evals/answers/,
+which .claude/settings.json already denies. For any other path, list it here and add it to the "deny" list
+in .claude/settings.json (committed, so the block travels with the repository):
+  "Read(./other/path/**)", "Edit(./other/path/**)"
+Add a test that fails if those deny rules go missing, so scripts/check catches a template update that drops them.
 -->
 
 None.

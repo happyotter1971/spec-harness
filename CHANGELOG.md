@@ -2,6 +2,12 @@
 
 All notable changes to the template. Versions are git tags; `copier update` moves an app to the latest one.
 
+## Unreleased
+
+- GUIDE: answers to questions from the first real app build (Card Value). Which commands go in Claude Code and which in your own terminal tab; a new "Add API keys" step (private `.env` link, `.env.example` is yours to edit); keep the first build narrow; accepting an ADR yourself, with the command; committing briefs and plans; when to publish and checking the first CI run; what Dependabot's first pull requests and a failed "uv" job mean. Cheat sheet gains the owner's commands.
+- Dependabot skips major versions of `typescript` and `@types/node`; those are deliberate upgrades.
+- `.claude/settings.json` denies the agent `evals/answers/` (held-out eval answers) in every app. AGENT_NOTES and the guide now say to put other off-limits paths in the committed `.claude/settings.json`, guarded by a test, not in the git-ignored `settings.local.json`.
+
 ## v1.0.1
 
 - Docs: the README and GUIDE explain that updates come from the template's release tags on GitHub, how to pin a release, and how to maintain a fork (edit, test, tag, push). A new app's README links to the changelog.
